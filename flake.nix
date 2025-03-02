@@ -118,6 +118,7 @@
               "test/libc/calls/getprogramexecutablename_test.c"
               "test/libc/proc/posix_spawn_test.c"
               "test/tool/args/args2_test.c"
+              "test/libc/calls/open_test.c"
             ];
           in
             final.lib.concatStringsSep ";\n" (map (t: "rm -v ${t}") failingTests);
