@@ -26,7 +26,7 @@
     );
 
     overlays.default = final: prev: {
-      cosmocc = final.callPackage ./package-cosmocc.nix { };
+      cosmocc = final.callPackage ./package-cosmocc.nix {};
       s0ph0s-cosmopolitan = final.callPackage ./package.nix {
         cosmocc = final.cosmocc;
       };

@@ -5,7 +5,7 @@
 }:
 stdenv.mkDerivation (finalAttrs: let
   version = "3.9.2";
-in{
+in {
   # Download and extract the cosmocc toolchain separately, so that the work
   # can be reused (and so that the build doesn't fail when the Cosmopolitan
   # makefile tries to do the same thing)
