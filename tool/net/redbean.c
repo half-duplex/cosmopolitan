@@ -4384,9 +4384,11 @@ static int LuaSetCookie(lua_State *L) {
   size_t keylen, vallen;
   char *expires, *samesite = "";
   char *buf = 0;
-  bool ishostpref, issecurepref;
+  uint32_t clientip;
+  bool ishostpref, issecurepref, isfwdsecure;
   const char *hostpref = "__Host-";
   const char *securepref = "__Secure-";
+  const char *secureproto = "https";
 
   OnlyCallDuringRequest(L, "SetCookie");
   key = luaL_checklstring(L, 1, &keylen);
@@ -4401,12 +4403,22 @@ static int LuaSetCookie(lua_State *L) {
     __builtin_unreachable();
   }
 
+  GetClientAddr(&clientip, NULL);
   ishostpref = keylen > strlen(hostpref) &&
                SlicesEqual(key, strlen(hostpref), hostpref, strlen(hostpref));
   issecurepref =
       keylen > strlen(securepref) &&
       SlicesEqual(key, strlen(securepref), securepref, strlen(securepref));
-  if ((ishostpref || issecurepref) && !usingssl) {
+  isfwdsecure =
+      IsTrustedIp(clientip) &&
+      HasHeader(kHttpXForwardedProto) &&
+      SlicesEqual(
+        HeaderData(kHttpXForwardedProto),
+        HeaderLength(kHttpXForwardedProto),
+        secureproto,
+        strlen(secureproto)
+      );
+  if ((ishostpref || issecurepref) && !usingssl && !isfwdsecure) {
     luaL_argerror(
         L, 1,
         gc(xasprintf("%s and %s prefixes require SSL", hostpref, securepref)));
